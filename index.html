@@ -1,0 +1,94 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Vacation Ranked Choice Voting</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Version display -->
+        <div style="position: absolute; right: 10px; top: 10px; color: #44fff6; font-size: 1em; opacity: 0.8;" id="versionTag">
+            HTML v0.008 · JS <span id="jsVersionTag">...</span>
+        </div>
+        <!-- Registration Page -->
+        <section id="registration" class="section">
+            <h2>Family Vacation Voting</h2>
+            <p>Enter your name below to get started. Each person can vote once!</p>
+            <div class="voter-input">
+                <input type="text" id="voterName" class="form-control" placeholder="Enter your name" maxlength="30"
+                    onkeypress="if(event.key==='Enter'){window.registerVoter();}">
+                <button class="btn btn--primary" id="startVotingBtn" onclick="window.registerVoter()">Start Voting</button>
+            </div>
+            <h4 style="margin-top:2em;">Who has already voted:</h4>
+            <ul id="votedNamesList" style="font-size:1.1em;"></ul>
+        </section>
+        <!-- Voting Interface -->
+        <section id="voting" class="section hidden">
+            <div class="voting-header">
+                <h2 id="currentVoterName"></h2>
+            </div>
+            <div class="voting-instructions">
+                <p>Drag and drop vacation options to rank them from most preferred (#1) to least preferred, or use the up/down buttons.</p>
+            </div>
+            <div class="ranking-container">
+                <div id="rankingList" class="ranking-list"></div>
+            </div>
+            <div class="section-actions">
+                <button class="btn btn--primary" onclick="window.submitVote()" id="submitVoteBtn">Submit My Ranking</button>
+            </div>
+        </section>
+        <!-- Results -->
+        <section id="results" class="section hidden">
+            <h2>🎉 Vacation Decision Results</h2>
+            <div class="winner-announcement">
+                <div class="winner-card">
+                    <h3>Our Family Vacation Winner:</h3>
+                    <div id="winnerDisplay" class="winner-display"></div>
+                </div>
+            </div>
+            <div class="results-details">
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="window.showTab('elimination')">Elimination Rounds</button>
+                    <button class="tab-btn" onclick="window.showTab('individual')">Individual Rankings</button>
+                    <button class="tab-btn" onclick="window.showTab('journey')">Your Ballot Journey</button>
+                </div>
+                <div id="eliminationTab" class="tab-content">
+                    <h4>Round-by-Round Results</h4>
+                    <div id="eliminationRounds"></div>
+                </div>
+                <div id="individualTab" class="tab-content hidden">
+                    <h4>How Each Family Member Voted</h4>
+                    <div id="individualRankings"></div>
+                </div>
+                <div id="journeyTab" class="tab-content hidden">
+                    <h4>Your Ballot Journey</h4>
+                    <div id="ballotJourney" class="ballot-journey-block"></div>
+                </div>
+            </div>
+            <div class="section-actions">
+                <button class="btn btn--secondary" onclick="window.resetApp()">Let Another Member Vote</button>
+            </div>
+            <!-- The narrative will be injected below here by JS -->
+        </section>
+    </div>
+    <!-- SCRIPTS: Firebase compat SDKs, config, then app.js -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyC2VxIDKNyndiW-RznlrJE1ujXRZPQGf_A",
+        authDomain: "vacation-planner-7ab34.firebaseapp.com",
+        projectId: "vacation-planner-7ab34",
+        storageBucket: "vacation-planner-7ab34.firebasestorage.app",
+        messagingSenderId: "363735780480",
+        appId: "1:363735780480:web:bc2fc95eb355e35d86aa65"
+      };
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+    </script>
+    <script src="app.js"></script>
+</body>
+</html>
