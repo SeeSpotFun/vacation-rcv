@@ -1,302 +1,137 @@
-// admin.js - Admin Page JS v0.008 (Ballot Journey for Each Voter Shows Eliminations/Why)
+// admin.js - Secure Google Auth RCV Admin Panel with Full Feature Set
 
-const ADMIN_CODE = "shane2025"; // Updated admin code!
-let voterDocs = [];
-let optionDocs = [];
-let latestBallotJourneys = {}; // { voterName: [ { round, forOption, action, eliminated, because } ] }
+// === Firebase Config ===
+const firebaseConfig = {
+  apiKey: "AIzaSyApFSFEI4NaFHM1DDQhq6SDjGjNaNFcKmo",
+  authDomain: "vacation-rcv.firebaseapp.com",
+  projectId: "vacation-rcv",
+  storageBucket: "vacation-rcv.firebasestorage.app",
+  messagingSenderId: "996338082046",
+  appId: "1:996338082046:web:18912786289e84da2205af"
+};
 
-function checkAdminLogin() {
-    const input = document.getElementById('adminPassword');
-    const panel = document.getElementById('adminPanel');
-    const loginDiv = document.getElementById('adminLogin');
-    const err = document.getElementById('loginError');
-    if (input.value.trim() === ADMIN_CODE) {
-        panel.style.display = 'block';
-        loginDiv.style.display = 'none';
-        err.textContent = '';
-        fetchOptions();
-        fetchVoters();
+// Admins: Update this with ALL accounts you wish to allow
+const ADMIN_EMAILS = [
+  "thisismygameaddress@gmail.com"
+];
+
+// === Firebase Initialization ===
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+
+// === DOM Elements ===
+const adminPanel = document.getElementById('adminPanel');
+const authSection = document.getElementById('authSection');
+const googleSignInBtn = document.getElementById('googleSignInBtn');
+const userEmailDiv = document.getElementById('userEmail');
+const nonAdminMsg = document.getElementById('nonAdminMsg');
+
+// --- Auth/Access Control ---
+function setSignedInUI(user) {
+  userEmailDiv.textContent = `Signed in as: ${user.email}`;
+  googleSignInBtn.style.display = 'none';
+}
+
+function showAdminPanel(show) {
+  adminPanel.style.display = show ? 'block' : 'none';
+  nonAdminMsg.style.display = show ? 'none' : 'block';
+}
+
+// Auth state
+auth.onAuthStateChanged((user) => {
+  if (user) {
+    setSignedInUI(user);
+    if (ADMIN_EMAILS.includes(user.email)) {
+      showAdminPanel(true);
+      fetchOptions();
+      fetchVoters();
     } else {
-        err.textContent = "Incorrect admin code!";
+      showAdminPanel(false);
     }
-}
-const pwInput = document.getElementById('adminPassword');
-const loginBtn = document.getElementById('loginBtn');
-if (pwInput && loginBtn) {
-    pwInput.addEventListener('keypress', function(e){
-        if(e.key === 'Enter'){ window.checkAdminLogin(); }
+  } else {
+    adminPanel.style.display = 'none';
+    nonAdminMsg.style.display = 'none';
+    userEmailDiv.textContent = "";
+    googleSignInBtn.style.display = '';
+  }
+});
+
+googleSignInBtn.onclick = function() {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  auth.signInWithPopup(provider).catch(err => alert("Sign-in failed: " + err.message));
+};
+
+// === Admin Panel Logic ===
+
+// -- Option (Choice) Management --
+function fetchOptions() {
+  db.collection("options").orderBy("name").get().then((querySnapshot) => {
+    let html = "<ul>";
+    querySnapshot.forEach((doc) => {
+      const { name, description } = doc.data();
+      html += `<li>
+        <b>${name}</b> <span style="color:#888;">${description||""}</span>
+        <button onclick="deleteOption('${doc.id}')" class="danger" title="Delete">&#10060;</button>
+      </li>`;
     });
-    loginBtn.addEventListener('click', window.checkAdminLogin);
-} else {
-    setTimeout(function() {
-        const pwInput2 = document.getElementById('adminPassword');
-        const loginBtn2 = document.getElementById('loginBtn');
-        if (pwInput2 && loginBtn2) {
-            pwInput2.addEventListener('keypress', function(e){
-                if(e.key === 'Enter'){ window.checkAdminLogin(); }
-            });
-            loginBtn2.addEventListener('click', window.checkAdminLogin);
-        }
-    }, 200);
+    html += "</ul>";
+    document.getElementById('optionsList').innerHTML = html;
+  });
 }
 
-// == OPTION (CHOICE) MANAGEMENT ==
-function fetchOptions(callback) {
-    db.collection("options").orderBy("name").get().then((querySnapshot) => {
-        optionDocs = [];
-        let html = "<tr><th>Name</th><th>Description</th><th>Actions</th></tr>";
-        querySnapshot.forEach((doc) => {
-            const o = doc.data();
-            optionDocs.push({ id: doc.id, data: o });
-            html += `
-                <tr>
-                    <td><input value="${o.name || ""}" onchange="window.editOption('${doc.id}',this.value,null)" style="width:180px;"></td>
-                    <td><input value="${o.description || ""}" onchange="window.editOption('${doc.id}',null,this.value)" style="width:340px;"></td>
-                    <td>
-                        <button onclick="window.deleteOption('${doc.id}')" class="danger">Delete</button>
-                    </td>
-                </tr>
-            `;
-        });
-        document.getElementById('optionsTable').innerHTML = html;
-        if (callback) callback();
-    });
-}
-function addOption() {
-    const name = document.getElementById('newOptionName').value.trim();
-    const desc = document.getElementById('newOptionDesc').value.trim();
-    if (!name) { alert("Name required!"); return; }
-    db.collection("options").add({ name, description: desc }).then(() => {
-        document.getElementById('newOptionName').value = "";
-        document.getElementById('newOptionDesc').value = "";
-        fetchOptions();
-    });
-}
-function editOption(docId, newName, newDesc) {
-    const docRef = db.collection("options").doc(docId);
-    const o = optionDocs.find(x => x.id === docId)?.data || {};
-    docRef.update({
-        name: newName !== null ? newName : o.name,
-        description: newDesc !== null ? newDesc : o.description
-    }).then(fetchOptions);
-}
-function deleteOption(docId) {
-    if (!confirm("Delete this option for all voters?")) return;
-    db.collection("options").doc(docId).delete().then(fetchOptions);
-}
+window.deleteOption = function(optionId) {
+  if (confirm("Delete this option?")) {
+    db.collection("options").doc(optionId).delete().then(fetchOptions);
+  }
+};
+document.getElementById('addOptionBtn').onclick = function() {
+  const val = document.getElementById('optionNameInput').value.trim();
+  if (!val) return;
+  db.collection("options").add({ name: val, description: "" })
+    .then(() => { document.getElementById('optionNameInput').value = ""; fetchOptions(); });
+};
 
-// == VOTER MANAGEMENT ==
+// -- Voters & Ballots Management --
 function fetchVoters() {
-    db.collection("options").get().then((optionSnapshot) => {
-        let optionMap = {};
-        optionSnapshot.forEach(optDoc => {
-            optionMap[optDoc.id] = optDoc.data().name;
-        });
-        db.collection("votes").get().then((querySnapshot) => {
-            voterDocs = [];
-            let allVotesData = {};
-            let html = "<tr><th>Name</th><th>Ranking</th><th>Submitted</th><th>Action</th><th>Journey</th></tr>\n";
-            let count = 0;
-            querySnapshot.forEach((doc) => {
-                const v = doc.data();
-                voterDocs.push({ id: doc.id, data: v });
-                let rankingNames = (v.rankings || []).map(id => optionMap[id] || id).join(", ");
-                allVotesData[v.name] = Array.isArray(v.rankings) ? v.rankings : [];
-                html += `<tr>
-                    <td>${v.name || "(no name)"}</td>
-                    <td>${rankingNames || "—"}</td>
-                    <td>${v.timestamp ? new Date(v.timestamp.seconds*1000).toLocaleString() : ""}</td>
-                    <td><button class='danger' onclick='window.deleteVoter("${doc.id}")'>Delete</button></td>
-                    <td><button class='btn gray' onclick="window.showVoterJourney('${v.name.replace(/'/g,"\\'") || ""}')">Show Journey</button></td>
-                </tr>`;
-                count++;
-            });
-            document.getElementById("votersTable").innerHTML = html;
-            document.getElementById("voterCount").textContent = count;
-            calculateAllBallotJourneysForAdmin(optionDocs, allVotesData);
-        });
+  db.collection("votes").orderBy("name").get().then((querySnapshot) => {
+    let html = `<table>
+      <tr><th>Name</th><th>Ballot</th><th>Submitted</th><th>Show Journey</th></tr>`;
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      html += `<tr>
+        <td>${data.name}</td>
+        <td>${Array.isArray(data.ranking) ? data.ranking.join(", ") : ''}</td>
+        <td>${data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleString() : "?"}</td>
+        <td><button onclick="viewBallotJourney('${doc.data().name}')" class="btn--primary">View</button></td>
+      </tr>`;
     });
+    html += "</table>";
+    document.getElementById('votersList').innerHTML = html;
+  });
 }
 
-function deleteVoter(docId) {
-    if (!confirm("Delete this voter and their vote?")) return;
-    db.collection("votes").doc(docId).delete().then(fetchVoters);
-}
-function resetAllVotes() {
-    if (!confirm("Delete ALL votes? This cannot be undone!")) return;
-    db.collection("votes").get().then((querySnapshot) => {
-        const batch = db.batch();
-        querySnapshot.forEach((doc) => { batch.delete(doc.ref); });
-        batch.commit().then(() => fetchVoters());
-    });
-}
-
-// Ballot journey calculation mirrors updated app.js explanations
-function calculateAllBallotJourneysForAdmin(optionsList, allVotes) {
-    const options = optionsList.map(doc => ({ id: doc.id, name: doc.data.name }));
-    const votesObj = allVotes;
-    const voterNames = Object.keys(votesObj);
-    const totalVoters = voterNames.length;
-    let remainingOptions = [...options];
-    let safety = 0;
-    let allBallotJourneys = {};
-    voterNames.forEach(name => { allBallotJourneys[name] = []; });
-    let eliminatedHistory = [];
-    let eliminatedNamesByRound = [];
-
-    while (remainingOptions.length > 1 && safety < 30) {
-        safety++;
-        const voteCounts = {};
-        remainingOptions.forEach(option => {
-            voteCounts[option.id] = 0;
-        });
-        const currentChoicesByVoter = {};
-        Object.entries(votesObj).forEach(([voterName, rankingList]) => {
-            const filtered = (rankingList||[]).filter(id =>
-                remainingOptions.find(opt => opt.id === id));
-            if (filtered.length > 0) {
-                voteCounts[filtered[0]]++;
-                currentChoicesByVoter[voterName] = filtered[0];
-            } else {
-                currentChoicesByVoter[voterName] = null;
-            }
-        });
-
-        // Elimination logic
-        const sortedResults = Object.entries(voteCounts).sort((a, b) => b[1] - a[1]);
-        if (sortedResults.length === 0) break;
-        const [topId, topCount] = sortedResults[0];
-        let roundEliminated = [];
-        let tie = false;
-        if (topCount >= Math.floor(totalVoters / 2) + 1) {
-            roundEliminated = [];
-        } else {
-            const fewestVotes = sortedResults[sortedResults.length - 1][1];
-            roundEliminated = sortedResults
-                .filter(([, count]) => count === fewestVotes)
-                .map(([id]) => id);
-            if (roundEliminated.length === remainingOptions.length) {
-                tie = true;
-            }
-        }
-        eliminatedNamesByRound.push(
-            roundEliminated.map(eid =>
-                (options.find(o => o.id === eid)?.name) || '(unknown)'
-            )
-        );
-        Object.entries(votesObj).forEach(([voterName, rankingList]) => {
-            const thisChoice = currentChoicesByVoter[voterName];
-            let journeyArr = allBallotJourneys[voterName];
-            let previous = journeyArr.length ? journeyArr[journeyArr.length - 1] : null;
-            if (thisChoice === null) {
-                journeyArr.push({
-                    round: safety,
-                    forOption: null,
-                    action: 'exhausted',
-                    eliminated: roundEliminated,
-                    because: roundEliminated.length
-                        ? `All your ranked choices were eliminated this round: ${roundEliminated.map(id => options.find(o=>o.id===id)?.name||"(unknown)").join(', ')}.`
-                        : "All your ranked choices were already out."
-                });
-            } else if (!previous) {
-                journeyArr.push({
-                    round: safety,
-                    forOption: thisChoice,
-                    action: 'original',
-                    eliminated: roundEliminated,
-                    because: ""
-                });
-            } else if (thisChoice === previous.forOption) {
-                journeyArr.push({
-                    round: safety,
-                    forOption: thisChoice,
-                    action: 'stay',
-                    eliminated: roundEliminated,
-                    because:
-                        roundEliminated.length
-                            ? `Eliminated: ${roundEliminated.map(id => options.find(o=>o.id===id)?.name||"(unknown)").join(', ')} for having the fewest votes.`
-                            : ''
-                });
-            } else {
-                let prevRanked = null;
-                for (let id of rankingList) {
-                    if (
-                        previous.forOption &&
-                        id === previous.forOption &&
-                        roundEliminated.includes(id)
-                    ) {
-                        prevRanked = id;
-                        break;
-                    }
-                }
-                let reasonText = "";
-                if (prevRanked) {
-                    reasonText =
-                        `${options.find(o=>o.id===prevRanked)?.name}: your higher-ranked choice, was eliminated for having the fewest votes this round.`;
-                } else {
-                    reasonText =
-                        `Your vote moved to ${options.find(o=>o.id===thisChoice)?.name||thisChoice}.`;
-                }
-                journeyArr.push({
-                    round: safety,
-                    forOption: thisChoice,
-                    action: 'transferred',
-                    eliminated: roundEliminated,
-                    because: reasonText
-                });
-            }
-        });
-        if (topCount >= Math.floor(totalVoters / 2) + 1) break;
-        if (roundEliminated.length === remainingOptions.length) break;
-        eliminatedHistory.push(...roundEliminated);
-        remainingOptions = remainingOptions.filter(opt => !roundEliminated.includes(opt.id));
-        if (remainingOptions.length === 0) break;
+// -- Ballot Journey Display --
+window.viewBallotJourney = function(voterName) {
+  // Retrieve and render ballot journey for this voter
+  db.collection("ballotJourneys").doc(voterName).get().then((doc) => {
+    if (!doc.exists || !doc.data() || !doc.data().steps) {
+      document.getElementById('journeyDialogContent').innerHTML =
+        "<b>No journey found for this ballot.</b>";
+      document.getElementById('journeyDialog').showModal();
+      return;
     }
-    latestBallotJourneys = allBallotJourneys;
-}
-
-// Admin display for modal
-function showVoterJourney(name) {
-    const optionsList = optionDocs.map(doc => ({ id: doc.id, name: doc.data.name }));
-    if (!name || !latestBallotJourneys[name]) {
-        document.getElementById('adminBallotJourney').innerHTML = '<p>No journey found for this ballot.</p>';
-        document.getElementById('journeyDialog').showModal();
-        return;
-    }
-    const steps = latestBallotJourneys[name];
+    const steps = doc.data().steps;
     let rows = '';
     for (const step of steps) {
-        let optName = step.forOption ? (optionsList.find(o => o.id === step.forOption)?.name || '(unknown)') : null;
-        let elimNames = (Array.isArray(step.eliminated) && step.eliminated.length)
-            ? step.eliminated.map(id => (optionsList.find(o => o.id === id)?.name || '(unknown)')).join(', ')
-            : null;
-        let detail = '';
-        if (step.action === "original") {
-            detail = `Round ${step.round}: Ballot started with <strong>${optName}</strong>.`;
-            if (elimNames) detail += ` (Eliminated: ${elimNames})`;
-        } else if (step.action === "stay") {
-            detail = `Round ${step.round}: Ballot stayed with <strong>${optName}</strong>.`;
-            if (elimNames) detail += ` (Eliminated: ${elimNames})`;
-            if (step.because) detail += ` Reason: ${step.because}`;
-        } else if (step.action === "transferred") {
-            detail = `Round ${step.round}: Ballot transferred to <strong>${optName}</strong> because ${step.because}`;
-            if (elimNames) detail += ` (Eliminated: ${elimNames})`;
-        } else if (step.action === "exhausted") {
-            detail = `Round ${step.round}: Ballot became exhausted. ${step.because}`;
-        } else {
-            detail = `Round ${step.round}: [No data]`;
-        }
-        rows += `<div class="ballot-journey-step">${detail}</div>`;
+      let elim = step.eliminated ? `<span style="color:#ee3d3d;">Eliminated: ${Array.isArray(step.eliminated)?step.eliminated.join(", "):step.eliminated}</span>` : '';
+      let line = `<div style="padding-bottom:4px;">
+        <b>Round ${step.round}</b>: Voted for <b>${step.forOption}</b> — ${step.action||''} ${elim}
+        ${step.because ? "<br><i>" + step.because + "</i>" : ""}
+      </div>`;
+      rows += line;
     }
-    document.getElementById('adminBallotJourney').innerHTML = rows;
+    document.getElementById('journeyDialogContent').innerHTML = rows;
     document.getElementById('journeyDialog').showModal();
-}
-
-window.checkAdminLogin = checkAdminLogin;
-window.editOption = editOption;
-window.addOption = addOption;
-window.deleteOption = deleteOption;
-window.fetchOptions = fetchOptions;
-window.deleteVoter = deleteVoter;
-window.resetAllVotes = resetAllVotes;
-window.showVoterJourney = showVoterJourney;
+  });
+};
