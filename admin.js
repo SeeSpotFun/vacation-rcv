@@ -1,6 +1,5 @@
-// admin.js - Secure Google Auth RCV Admin Panel with Full Feature Set
+// admin.js - Secure Google Auth RCV Admin Panel with full add/edit option functionality
 
-// === Firebase Config ===
 const firebaseConfig = {
   apiKey: "AIzaSyApFSFEI4NaFHM1DDQhq6SDjGjNaNFcKmo",
   authDomain: "vacation-rcv.firebaseapp.com",
@@ -10,35 +9,27 @@ const firebaseConfig = {
   appId: "1:996338082046:web:18912786289e84da2205af"
 };
 
-// Admins: Update this with ALL accounts you wish to allow
 const ADMIN_EMAILS = [
   "thisismygameaddress@gmail.com"
 ];
 
-// === Firebase Initialization ===
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 
-// === DOM Elements ===
 const adminPanel = document.getElementById('adminPanel');
-const authSection = document.getElementById('authSection');
 const googleSignInBtn = document.getElementById('googleSignInBtn');
 const userEmailDiv = document.getElementById('userEmail');
 const nonAdminMsg = document.getElementById('nonAdminMsg');
 
-// --- Auth/Access Control ---
 function setSignedInUI(user) {
   userEmailDiv.textContent = `Signed in as: ${user.email}`;
   googleSignInBtn.style.display = 'none';
 }
-
 function showAdminPanel(show) {
   adminPanel.style.display = show ? 'block' : 'none';
   nonAdminMsg.style.display = show ? 'none' : 'block';
 }
-
-// Auth state
 auth.onAuthStateChanged((user) => {
   if (user) {
     setSignedInUI(user);
@@ -56,43 +47,82 @@ auth.onAuthStateChanged((user) => {
     googleSignInBtn.style.display = '';
   }
 });
-
 googleSignInBtn.onclick = function() {
   const provider = new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider).catch(err => alert("Sign-in failed: " + err.message));
 };
 
-// === Admin Panel Logic ===
-
-// -- Option (Choice) Management --
+// Option management (add, edit, delete)
 function fetchOptions() {
   db.collection("options").orderBy("name").get().then((querySnapshot) => {
-    let html = "<ul>";
+    let html = "<table style='width:100%;'><tr><th>Name</th><th>Description</th><th>Edit</th><th>Delete</th></tr>";
     querySnapshot.forEach((doc) => {
-      const { name, description } = doc.data();
-      html += `<li>
-        <b>${name}</b> <span style="color:#888;">${description||""}</span>
-        <button onclick="deleteOption('${doc.id}')" class="danger" title="Delete">&#10060;</button>
-      </li>`;
+      const { name, description = "" } = doc.data();
+      html += `<tr>
+        <td>${escapeHtml(name)}</td>
+        <td>${escapeHtml(description)}</td>
+        <td><button onclick="showEditOptionDialog('${doc.id}', '${escapeHtml(name)}', '${escapeHtml(description)}')">Edit</button></td>
+        <td><button onclick="deleteOption('${doc.id}')" class="danger" title="Delete">&#10060;</button></td>
+      </tr>`;
     });
-    html += "</ul>";
+    html += "</table>";
     document.getElementById('optionsList').innerHTML = html;
   });
 }
-
+function escapeHtml(text) {
+  if (!text) return '';
+  return text.replace(/&/g, "&amp;")
+             .replace(/'/g, "&#39;")
+             .replace(/"/g, "&quot;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;");
+}
+document.getElementById('addOptionBtn').onclick = function() {
+  const nameVal = document.getElementById('optionNameInput').value.trim();
+  const descVal = document.getElementById('optionDescInput').value.trim();
+  if (!nameVal) return alert("Please enter an option name.");
+  db.collection("options").add({ name: nameVal, description: descVal })
+    .then(() => {
+      document.getElementById('optionNameInput').value = "";
+      document.getElementById('optionDescInput').value = "";
+      fetchOptions();
+    });
+};
 window.deleteOption = function(optionId) {
   if (confirm("Delete this option?")) {
     db.collection("options").doc(optionId).delete().then(fetchOptions);
   }
 };
-document.getElementById('addOptionBtn').onclick = function() {
-  const val = document.getElementById('optionNameInput').value.trim();
-  if (!val) return;
-  db.collection("options").add({ name: val, description: "" })
-    .then(() => { document.getElementById('optionNameInput').value = ""; fetchOptions(); });
-};
 
-// -- Voters & Ballots Management --
+// Edit Option functions
+window.showEditOptionDialog = function(optionId, optionName, optionDesc) {
+  document.getElementById('editOptionName').value = htmlDecode(optionName);
+  document.getElementById('editOptionDesc').value = htmlDecode(optionDesc);
+  const dialog = document.getElementById('editOptionDialog');
+  dialog.returnValue = "";
+  dialog.showModal();
+  dialog.onsubmit = function(e) {
+    e.preventDefault();
+    const newName = document.getElementById('editOptionName').value.trim();
+    const newDesc = document.getElementById('editOptionDesc').value.trim();
+    if (!newName) return alert("Please enter a name.");
+    db.collection("options").doc(optionId).update({ name: newName, description: newDesc })
+      .then(() => {
+        dialog.close();
+        fetchOptions();
+      });
+  };
+};
+window.closeEditOptionDialog = function() {
+  document.getElementById('editOptionDialog').close();
+};
+function htmlDecode(input){
+  var e = document.createElement('textarea');
+  e.innerHTML = input;
+  return e.value;
+}
+
+// Voters & Ballots
 function fetchVoters() {
   db.collection("votes").orderBy("name").get().then((querySnapshot) => {
     let html = `<table>
@@ -110,10 +140,7 @@ function fetchVoters() {
     document.getElementById('votersList').innerHTML = html;
   });
 }
-
-// -- Ballot Journey Display --
 window.viewBallotJourney = function(voterName) {
-  // Retrieve and render ballot journey for this voter
   db.collection("ballotJourneys").doc(voterName).get().then((doc) => {
     if (!doc.exists || !doc.data() || !doc.data().steps) {
       document.getElementById('journeyDialogContent').innerHTML =
