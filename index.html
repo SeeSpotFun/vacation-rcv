@@ -1,18 +1,18 @@
-<!-- index.html v0.008 -->
+<!-- index.html v0.100 - Unified Firebase 10.5 compat -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=700, initial-scale=1.0, user-scalable=1" />
   <title>Family Vacation Voting App</title>
+  <meta name="viewport" content="width=700, initial-scale=1.0, user-scalable=1" />
   <meta name="description" content="Ranked Choice Voting for Family Vacation Planning" />
 
   <link rel="stylesheet" href="style.css?v=0.002" />
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="app.js?v=0.020" defer></script>
+  <!-- Unify to Firebase 10.5 compat -->
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+  <script src="app.js?v=0.100" defer></script>
 </head>
 <body>
   <div class="container">
@@ -29,14 +29,10 @@
               id="voterName" 
               name="voterName" 
               placeholder="Enter your name"
-              required
-              minlength="1"
-              maxlength="52"
+              required minlength="1" maxlength="52"
               inputmode="text"
-              spellcheck="false"
-              autocomplete="off"
-              autocorrect="off"
-              autocapitalize="off"
+              spellcheck="false" autocomplete="off"
+              autocorrect="off" autocapitalize="off"
               aria-autocomplete="none"
             />
             <button type="button" id="registerBtn" class="primary">Start Voting</button>
@@ -68,24 +64,15 @@
       </section>
     </div>
   </div>
-
   <!-- Fixed version tag in lower right corner -->
   <div style="
-      position:fixed;
-      right:10px;
-      bottom:10px;
-      min-width:98px;
-      background:rgba(24,29,36,0.97);
-      border:1.2px solid #27292f;
-      color:#b2b7be;
-      font-size:13px;
-      border-radius:7px;
-      padding:5px 16px 5px 14px;
-      z-index:10000;
-      font-family: 'Segoe UI',Arial,sans-serif;
-      letter-spacing:0.02em;
+      position:fixed;right:10px;bottom:10px;min-width:98px;
+      background:rgba(24,29,36,0.97);border:1.2px solid #27292f;
+      color:#b2b7be;font-size:13px;border-radius:7px;
+      padding:5px 16px 5px 14px;z-index:10000;
+      font-family: 'Segoe UI',Arial,sans-serif;letter-spacing:0.02em;
       box-shadow:0 2px 12px #100d;">
-    HTML v0.008 &middot; JS v0.020
+    HTML v0.100 • JS v0.100
   </div>
 </body>
 </html>
