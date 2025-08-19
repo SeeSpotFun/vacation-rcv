@@ -1,72 +1,83 @@
+<!-- admin.html v0.003 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Vacation Ballot Admin (RCV)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
-  <style>
-    .refresh-reset-bar { margin-bottom: 12px; }
-    .refresh-reset-bar button { margin-right:8px; }
-    .admin-header { display: flex; align-items: center; justify-content: space-between;}
-    .results-section { margin-top: 2em; background: #121d24; padding: 1.25em; border-radius: 8px;}
-    .expanded-journey { background: #172330; padding: 0.5em 1em; margin-bottom:1em; border-radius:6px;}
-  </style>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=700, initial-scale=1.0, user-scalable=1" />
+  <title>Admin Panel &mdash; Vacation Ranked Choice Voting</title>
+  <meta name="description" content="Admin management for Family Vacation Ranked Choice Voting app" />
+
+  <link rel="stylesheet" href="style.css?v=0.002" />
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="admin.js?v=0.003" defer></script>
 </head>
 <body>
   <div class="container">
-    <div class="admin-header">
-      <h2>Admin Panel</h2>
-      <span id="jsVersionTag" style="font-size:0.95em;color:#ccc;">v0.3-SECURE</span>
-    </div>
-    <div id="authSection">
-      <button id="googleSignInBtn" class="btn--primary" style="margin-bottom:18px;">Sign in with Google</button>
-      <div id="userEmail" style="margin-bottom:10px; color:#ffe082"></div>
-    </div>
-    <div id="nonAdminMsg" class="admin-section" style="display:none; color:var(--color-error); font-size:1.25em; margin-top:2em;">
-      Naa guess again
-    </div>
-    <div id="adminPanel" style="display:none;">
-      <div class="refresh-reset-bar">
-        <button id="refreshBtn" class="btn--primary">Refresh</button>
-        <button id="resetBtn" class="danger">Delete ALL Options & Votes</button>
-      </div>
-      <section class="admin-section">
-        <h4>Vacation Options</h4>
-        <div>
-          <input id="optionNameInput" placeholder="Option name..." style="margin-right:5px;" />
-          <input id="optionDescInput" placeholder="Description..." style="margin-right:5px;width:22em;" />
-          <button id="addOptionBtn" class="btn--primary">Add Option</button>
+    <header class="admin-header" style="margin-bottom:22px;">
+      <h1>Vacation Voting: Admin Panel</h1>
+      <div id="jsVersionTag" style="font-size:0.98em;color:#46c9f5;margin-top:2px;"></div>
+    </header>
+
+    <div id="userEmail" style="margin-bottom:12px;font-size:1.01em;color:#b2b7be;"></div>
+    <button id="googleSignInBtn" class="primary" type="button" style="margin:9px 0 28px 0;">Sign in with Google</button>
+    <div id="nonAdminMsg" class="hidden" style="color:#ee3d3d;font-weight:600;">Sorry, admin access required.</div>
+
+    <div id="adminPanel" class="admin-section" style="display:none;">
+      <!-- Admin controls & dashboards go here -->
+      
+      <section id="optionsSection" class="admin-section">
+        <h2>Manage Vacation Options</h2>
+        <form id="addOptionForm" autocomplete="off" style="margin-bottom:22px;">
+          <input type="text" id="optionName" name="optionName" placeholder="Option name" required maxlength="64"
+                 autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-autocomplete="none" />
+          <input type="text" id="optionDescription" name="optionDescription" placeholder="Short description" maxlength="120"
+                 autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-autocomplete="none" />
+          <button type="submit" class="primary">Add Option</button>
+        </form>
+        <div id="optionsTable"></div>
+      </section>
+
+      <section id="votesSection" class="admin-section">
+        <h2>Manage Votes</h2>
+        <div class="section-actions" style="margin-bottom:11px;">
+          <button type="button" id="refreshBtn" class="primary">Refresh</button>
+          <button type="button" id="deleteAllVotesBtn" class="danger">Delete All Votes</button>
+          <button type="button" id="deleteAllOptionsBtn" class="danger">Delete All Options</button>
         </div>
-        <div id="optionsList"></div>
+        <div id="votesTable"></div>
       </section>
-      <section class="admin-section">
-        <h4>Voters & Ballots</h4>
-        <div id="votersList"></div>
+
+      <section id="journeysSection" class="admin-section">
+        <h2>Ballot Journeys (Expanded)</h2>
+        <div id="adminJourneysTable"></div>
       </section>
-      <section class="admin-section">
-        <h4>All Ballot Journeys (Expanded)</h4>
-        <div id="allJourneys"></div>
-      </section>
-      <section class="results-section">
-        <h3>📊 Voting Results & Stats</h3>
-        <div id="resultsTabs"></div>
-        <div id="resultsContent"></div>
+
+      <section id="resultsSection" class="admin-section">
+        <h2>RCV Results</h2>
+        <div id="adminRCVResults"></div>
       </section>
     </div>
   </div>
-  <dialog id="editOptionDialog">
-    <form id="editOptionForm" method="dialog">
-      <h3>Edit Vacation Option</h3>
-      <input id="editOptionName" placeholder="Option name" style="margin-bottom:7px; width:18em;" required /><br>
-      <textarea id="editOptionDesc" placeholder="Description" style="margin-bottom:10px;width:22em;min-height:60px;"></textarea><br>
-      <button id="saveOptionEditBtn" class="btn--primary" type="submit">Save</button>
-      <button type="button" onclick="closeEditOptionDialog()">Cancel</button>
-    </form>
-  </dialog>
-  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
-  <script src="admin.js"></script>
+  <!-- Fixed version tag in lower right corner -->
+  <div style="
+      position:fixed;
+      right:10px;
+      bottom:10px;
+      min-width:98px;
+      background:rgba(24,29,36,0.97);
+      border:1.2px solid #27292f;
+      color:#b2b7be;
+      font-size:13px;
+      border-radius:7px;
+      padding:5px 16px 5px 14px;
+      z-index:10000;
+      font-family: 'Segoe UI',Arial,sans-serif;
+      letter-spacing:0.02em;
+      box-shadow:0 2px 12px #100d;">
+    HTML v0.003 &middot; JS v0.003
+  </div>
 </body>
 </html>

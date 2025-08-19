@@ -1,367 +1,269 @@
-/* style.css - Shared for both index.html and admin.html, optimized for dark mode, white text, and subtle accents */
+/* style.css v0.002 - Shared for both index.html and admin.html, optimized for dark mode, white text, and subtle accents */
 
 /* ===== Design System Tokens: Optimized for a dark background ===== */
+
 :root {
-  --color-background: #131415;         /* Deep black/charcoal */
-  --color-surface: #1a1b1e;            /* Panel BG */
-  --color-text: #fff;                  /* White text */
-  --color-text-secondary: #b2b7be;     /* Muted white/gray */
-  --color-primary: #33b9f2;            /* Gentle blue for highlights */
-  --color-primary-hover: #2196f3;
-  --color-primary-active: #156db2;
-  --color-secondary: #22242a;          /* Soft near-black */
-  --color-secondary-hover: #34373f;
-  --color-secondary-active: #23252b;
-  --color-border: #27292f;             /* Very dark gray */
-  --color-error: #ee3d3d;
-  --color-success: #47f5b0;
-  --color-info: #46c9f5;
-  --color-card-border: #23252b;
-  --color-btn-primary-text: #fff;
-  --color-warning: #ffe082;
-  --color-focus-ring: rgba(51,185,242,0.22);
 
-  --font-family-base: 'Segoe UI', Arial, Helvetica, sans-serif;
-  --font-family-mono: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+--color-background: #131415; /* Deep black/charcoal */
 
-  --font-size-base: 14px;
-  --font-size-md: 16px;
-  --font-size-lg: 18px;
-  --font-size-xl: 20px;
-  --font-size-2xl: 26px;
-  --font-size-3xl: 32px;
-  --font-size-4xl: 40px;
+--color-surface: #1a1b1e; /* Panel BG */
 
-  --space-4: 4px;
-  --space-8: 8px;
-  --space-12: 12px;
-  --space-16: 16px;
-  --space-20: 20px;
-  --space-24: 24px;
-  --space-32: 32px;
+--color-text: #fff; /* White text */
 
-  --radius-sm: 6px;
-  --radius-base: 10px;
-  --radius-md: 16px;
-  --radius-lg: 22px;
+--color-text-secondary: #b2b7be; /* Muted white/gray */
 
-  --shadow-md: 0 2px 16px 0 rgba(0,0,0,0.15);
-}
+--color-primary: #33b9f2; /* Gentle blue for highlights */
+
+--color-primary-hover: #2196f3;
+
+--color-primary-active: #156db2;
+
+--color-secondary: #22242a; /* Soft near-black */
+
+--color-secondary-hover: #34373f;
+
+--color-secondary-active: #23252b;
+
+--color-border: #27292f; /* Very dark gray */
+
+--color-error: #ee3d3d;
+
+--color-success: #47f5b0;
+
+--color-info: #46c9f5;
+
+--color-card-border: #23252b;
+
+--color-btn-primary-text: #fff;
+
+--color-warning: #ffe082;
+
+--color-focus-ring: rgba(51,185,242,0.22);
+
+--font-family-base: 'Segoe UI', Arial, Helvetica, sans-serif;
+
+--font-family-mono: 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+
+--font-size-base: 14px;
+
+--font-size-md: 16px;
+
+--font-size-lg: 18px;
+
+--font-size-xl: 20px;
+
+--font-size-2xl: 26px;
+
+--font-size-3xl: 32px;
+
+--font-size-4xl: 40px;
+
+--space-4: 4px;
+
+--space-8: 8px;
+
+--space-12: 12px;
+
+--space-16: 16px;
+
+--space-20: 20px;
+
+--space-24: 24px;
+
+--space-32: 32px;
+
+--radius-sm: 6px;
+
+--radius-base: 10px;
+
+--radius-md: 16px;
+
+--radius-lg: 22px;
+
+--shadow-md: 0 2px 16px 0 rgba(0,0,0,0.15);
+
+
+
 /* No need for prefers-color-scheme since we want always-dark! */
 
 /* ========== Reset & Accessibility ========== */
+
 html, body {
-  background: var(--color-background);
-  color: var(--color-text);
-  font-family: var(--font-family-base);
-  font-size: var(--font-size-base);
-  line-height: 1.6;
-  margin: 0; padding: 0;
+
+background: var(--color-background);
+
+color: var(--color-text);
+
+font-family: var(--font-family-base);
+
+font-size: var(--font-size-base);
+
+line-height: 1.6;
+
+margin: 0; padding: 0;
+
 }
 
 *, *::before, *::after { box-sizing: border-box; }
 
 a {
-  color: var(--color-primary);
-  text-decoration: none;
-  transition: color 0.2s;
+
+color: var(--color-primary);
+
+text-decoration: none;
+
+transition: color 0.2s;
+
 }
+
 a:hover { color: var(--color-primary-hover); }
 
 .hidden { display: none !important; }
+
 .block { display: block; }
 
 /* ========== Admin & App Table Styles ========== */
+
 table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--color-surface);
-  margin-top: 1.25em;
+
+width: 100%;
+
+border-collapse: collapse;
+
+background: var(--color-surface);
+
+margin-top: 1.25em;
+
 }
+
 th, td {
-  border: 1px solid var(--color-border);
-  padding: var(--space-8) var(--space-12);
+
+border: 1px solid var(--color-border);
+
+padding: var(--space-8) var(--space-12);
+
 }
+
 th {
-  background: var(--color-secondary);
-  color: var(--color-primary);
-  font-weight: 600;
+
+background: var(--color-secondary);
+
+color: var(--color-primary);
+
+font-weight: 600;
+
 }
+
 td { color: var(--color-text); }
+
 input, textarea {
-  background: var(--color-secondary);
-  color: var(--color-text);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-base);
-  padding: var(--space-8) var(--space-12);
-  font-size: var(--font-size-md);
+
+background: var(--color-secondary);
+
+color: var(--color-text);
+
+border: 1px solid var(--color-border);
+
+border-radius: var(--radius-base);
+
+padding: var(--space-8) var(--space-12);
+
+font-size: var(--font-size-md);
+
 }
+
 input:focus, textarea:focus {
-  border-color: var(--color-primary);
-  outline: 2px solid var(--color-primary);
+
+border-color: var(--color-primary);
+
+outline: 2px solid var(--color-primary);
+
 }
 
 button {
-  padding: var(--space-8) var(--space-16);
-  border-radius: var(--radius-sm);
-  border: none;
-  cursor: pointer;
-  font-size: var(--font-size-base);
-  background: var(--color-secondary);
-  color: var(--color-text);
-  transition: background 0.22s;
+
+padding: var(--space-8) var(--space-16);
+
+border-radius: var(--radius-sm);
+
+border: none;
+
+cursor: pointer;
+
+font-size: var(--font-size-base);
+
+background: var(--color-secondary);
+
+color: var(--color-text);
+
+transition: background 0.22s;
+
 }
+
 button.primary, .btn--primary {
-  background: var(--color-primary);
-  color: var(--color-btn-primary-text);
+
+background: var(--color-primary);
+
+color: var(--color-btn-primary-text);
+
 }
+
 button.primary:hover, .btn--primary:hover { background: var(--color-primary-hover);}
+
 button.danger { background: var(--color-error); color: #fff; }
+
 button.danger:hover { background: #c13232; }
+
 button.gray { background: var(--color-border);}
+
 button:disabled { opacity: 0.65; cursor: not-allowed; }
 
 .admin-header { display: flex; justify-content: space-between; align-items: center; }
+
 .admin-section { margin-bottom: var(--space-24); }
+
 #loginError { color: var(--color-error); margin-top:12px;}
+
 #adminLogin { margin-top: 80px; text-align: center; }
+
 h2, h4 { color: var(--color-primary); }
 
 /* ========== Layout, Panel and Section Styles ========== */
+
 .container {
-  max-width: 700px; margin: 36px auto; padding: 0 var(--space-16);
+
+max-width: 700px; margin: 36px auto; padding: 0 var(--space-16);
+
 }
+
 .section {
-  background: none; 
-  min-height: 80vh;
-  padding: var(--space-24) 0;
+
+background: none;
+
+min-height: 80vh;
+
+padding: var(--space-24) 0;
+
 }
+
 .section.hidden { display: none; }
+
 .voting-header, .winner-announcement { text-align: center; margin-bottom: var(--space-24);}
+
 .voting-instructions { text-align: center; margin-bottom: var(--space-16); color: var(--color-text-secondary);}
+
 .ranking-container { max-width: 600px; margin: 0 auto; }
 
 /* ========== Inputs / Form UI ========== */
+
 .form-control { width: 100%; margin-bottom: var(--space-8);}
+
 input[type="password"], input[type="text"] { background: var(--color-secondary);}
+
 input:focus, textarea:focus { outline: 2px solid var(--color-primary); border-color: var(--color-primary);}
+
 .voter-input { display: flex; gap: var(--space-12); flex-wrap: wrap; margin-bottom: var(--space-16);}
+
 .voter-input input { flex: 1; min-width: 200px;}
 
-/* ========== Voting List and Voting UI ========== */
-.ranking-list {
-  background: var(--color-surface); 
-  border-radius: var(--radius-md); 
-  padding: var(--space-16); 
-  border: 2px dashed var(--color-border);
-}
-
-/* Item styling for drag, up/down, etc */
-.ranking-item {
-  background: #191a1d;
-  border: 1px solid var(--color-card-border);
-  border-radius: var(--radius-base);
-  padding: var(--space-16);
-  margin-bottom: var(--space-12);
-  cursor: move;
-  transition: all 0.22s cubic-bezier(.16,1,.3,1);
-  color: var(--color-text);
-  box-shadow: none;
-}
-.ranking-item:last-child { margin-bottom: 0; }
-.ranking-item:hover { background: #23242a; }
-.ranking-item.dragging { opacity: .5; transform: rotate(3deg);}
-.ranking-item.drag-over { border-color: var(--color-primary); background: #132635; }
-
-.ranking-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-8);}
-.rank-number { background: var(--color-primary); color: #111; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: var(--font-size-base);}
-.rank-controls { display: flex; gap: var(--space-4);}
-.rank-btn {
-  background: var(--color-secondary); color: var(--color-primary);
-  border-radius: 50%;
-  border: none;
-  width: 28px; height: 28px;
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; 
-  font-weight: bold;
-}
-.rank-btn:disabled {opacity: 0.35;}
-
-.vacation-name { font-weight: 600; font-size: var(--font-size-lg); color: var(--color-primary);}
-.vacation-description { font-size: var(--font-size-base); color: var(--color-text-secondary); margin-top: 5px; }
-
-/* =======================
-   RCV PERCENTAGE & NARRATIVE
-   ======================= */
-.votes-percent {
-  color: var(--color-info);
-  font-size: 0.97em;
-  margin-left:8px;
-  opacity: 0.85;
-}
-
-.narrative-explanation-block {
-  margin-top:1.5em;
-  font-size:1.14em;
-  color: var(--color-warning);
-  background:#161717;
-  padding:0.8em 1em;
-  border-radius:7px;
-  line-height:1.7;
-  border: 1.2px solid var(--color-info);
-  box-shadow: 0 1px 8px rgba(40,90,150,.07);
-  word-break: break-word;
-  max-width: 740px;
-}
-
-/* ========== Results & Tabs ========== */
-.winner-card {
-  background: #1e332c;
-  border: 2px solid var(--color-success);
-  border-radius: var(--radius-lg);
-  padding: var(--space-20);
-  max-width: 500px;
-  margin: 0 auto;
-}
-.winner-name { font-size: var(--font-size-2xl); font-weight: 700; margin-bottom: var(--space-8); color: var(--color-success);}
-.winner-description { color: var(--color-text-secondary);}
-.tabs { display: flex; border-bottom: 2px solid var(--color-border); margin-bottom: var(--space-16);}
-.tab-btn { background: transparent; border: none; padding: var(--space-12) var(--space-20); font-size: var(--font-size-base); font-weight: 500; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; color: var(--color-text-secondary);}
-.tab-btn.active, .tab-btn:hover { color: var(--color-primary); border-bottom-color: var(--color-primary);}
-.tab-content { animation: fadeIn 0.28s cubic-bezier(.16,1,.3,1);}
-.tab-content.hidden { display: none; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px);} to {opacity:1;transform:translateY(0);}}
-
-/* Elimination round display */
-.elimination-round {
-  background: var(--color-surface);
-  border-radius: var(--radius-base);
-  padding: var(--space-12);
-  margin-bottom: var(--space-12);
-  border-left: 4px solid var(--color-primary);
-}
-.round-header {
-  font-weight: 700;
-  margin-bottom: var(--space-8);
-  color: var(--color-primary);
-}
-.round-results { display: grid; gap: var(--space-8);}
-.result-item {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: var(--space-8);
-  background: #182128;
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-md);
-  color: var(--color-text);
-}
-.result-item.eliminated {
-  background: #2e2025;
-  color: #d98e8e;
-  opacity: 0.8;
-  text-decoration: line-through;
-  font-style: italic;
-}
-
-/* Individual Rankings */
-.individual-voter {
-  background: var(--color-surface);
-  border-radius: var(--radius-base);
-  padding: var(--space-12);
-  margin-bottom: var(--space-12);
-}
-.voter-header {
-  font-weight: 700;
-  font-size: var(--font-size-lg);
-  margin-bottom: var(--space-8);
-  color: var(--color-info);
-}
-.voter-ranking-item {
-  display: flex;
-  align-items: center;
-  gap: var(--space-8);
-  padding: var(--space-8);
-  background: #1c1c20;
-  border-radius: var(--radius-sm);
-  color: var(--color-text);
-}
-.voter-rank-number {
-  background: var(--color-primary);
-  color: #121212;
-  width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: var(--font-size-base);
-  flex-shrink: 0;
-}
-
-.section-actions {
-  display: flex;
-  justify-content: center;
-  gap: var(--space-12);
-  margin-top: var(--space-20);
-  flex-wrap: wrap;
-}
-
-/* ========== Responsive ========== */
-@media (max-width: 900px) {
-  .container { max-width: 99vw;}
-}
-@media (max-width: 540px) {
-  .winner-card, .container { padding: var(--space-8);}
-  .section { padding: var(--space-8);}
-  .ranking-container { padding: var(--space-4);}
-}
-/* ... keep your previous style.css ... */
-
-/* ==========================
-   Ballot Journey Block Styles
-   ========================== */
-.ballot-journey-block, #adminBallotJourney {
-  background: #13171d;
-  padding: 18px 20px 12px 20px;
-  border-radius: 9px;
-  margin: 18px 0 0 0;
-  box-shadow: 0 2px 12px #10101a44;
-  color: #cff2fb;
-  font-size: 1.08em;
-  border: 1.5px solid #33b9f2;
-  line-height: 1.66;
-  min-height: 70px;
-}
-.ballot-journey-step {
-  margin-bottom: 9px;
-  padding: 6px 0;
-  border-left: 4px solid #33b9f2;
-  padding-left: 10px;
-  background: rgba(49,72,104,0.04);
-  color: #e7f7fd;
-  font-size: 1.02em;
-  border-radius: 6px;
-}
-.ballot-journey-step em {
-  color: #ffe082;
-}
-.ballot-journey-step strong {
-  color: #47f5b0;
-}
-/* Modal styles for admin panel */
-dialog#journeyDialog {
-  font-size: 1.04em;
-  background: #191a1d;
-  color: white;
-  padding: 16px 20px 12px 20px;
-  border: 2.5px solid #33b9f2;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px #000d;
-}
-dialog#journeyDialog h3 {
-  margin-top: 0;
-  color: #33b9f2;
-}
-
-@media (max-width: 540px) {
-  .ballot-journey-block, #adminBallotJourney {
-    padding: 12px 6px;
-    font-size: 0.98em;
-  }
-}
-
-/* ========== End style.css ========== */
-
+/* ========== Voting
