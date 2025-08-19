@@ -5,12 +5,19 @@
   <title>Vacation Ballot Admin (RCV)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
+  <style>
+    .refresh-reset-bar { margin-bottom: 12px; }
+    .refresh-reset-bar button { margin-right:8px; }
+    .admin-header { display: flex; align-items: center; justify-content: space-between;}
+    .results-section { margin-top: 2em; background: #121d24; padding: 1.25em; border-radius: 8px;}
+    .expanded-journey { background: #172330; padding: 0.5em 1em; margin-bottom:1em; border-radius:6px;}
+  </style>
 </head>
 <body>
   <div class="container">
     <div class="admin-header">
       <h2>Admin Panel</h2>
-      <span id="jsVersionTag" style="font-size:0.95em;color:#ccc;">v0.2-SECURE</span>
+      <span id="jsVersionTag" style="font-size:0.95em;color:#ccc;">v0.3-SECURE</span>
     </div>
     <div id="authSection">
       <button id="googleSignInBtn" class="btn--primary" style="margin-bottom:18px;">Sign in with Google</button>
@@ -20,11 +27,15 @@
       Naa guess again
     </div>
     <div id="adminPanel" style="display:none;">
+      <div class="refresh-reset-bar">
+        <button id="refreshBtn" class="btn--primary">Refresh</button>
+        <button id="resetBtn" class="danger">Delete ALL Options & Votes</button>
+      </div>
       <section class="admin-section">
         <h4>Vacation Options</h4>
         <div>
           <input id="optionNameInput" placeholder="Option name..." style="margin-right:5px;" />
-          <input id="optionDescInput" placeholder="Description..." style="margin-right:5px; width:22em;" />
+          <input id="optionDescInput" placeholder="Description..." style="margin-right:5px;width:22em;" />
           <button id="addOptionBtn" class="btn--primary">Add Option</button>
         </div>
         <div id="optionsList"></div>
@@ -34,8 +45,13 @@
         <div id="votersList"></div>
       </section>
       <section class="admin-section">
-        <h4>Ballot Journeys</h4>
-        <div id="journeyViewer"></div>
+        <h4>All Ballot Journeys (Expanded)</h4>
+        <div id="allJourneys"></div>
+      </section>
+      <section class="results-section">
+        <h3>📊 Voting Results & Stats</h3>
+        <div id="resultsTabs"></div>
+        <div id="resultsContent"></div>
       </section>
     </div>
   </div>
@@ -47,11 +63,6 @@
       <button id="saveOptionEditBtn" class="btn--primary" type="submit">Save</button>
       <button type="button" onclick="closeEditOptionDialog()">Cancel</button>
     </form>
-  </dialog>
-  <dialog id="journeyDialog">
-    <h3>Ballot Journey</h3>
-    <div id="journeyDialogContent"></div>
-    <button onclick="document.getElementById('journeyDialog').close();">Close</button>
   </dialog>
   <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
