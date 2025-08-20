@@ -15,6 +15,7 @@
     #logoutBtn { background: var(--color-error); color: #fff; padding: 6px 16px; border-radius:7px; border:none; cursor:pointer;}
     #logoutBtn:hover { background: #c13232; }
   </style>
+  <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,">
 </head>
 <body>
   <div class="container">
@@ -73,15 +74,13 @@
   <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
-  <script src="admin.js?v=0.100"></script>
+  <script src="admin.js?v=0.101"></script>
   <script>
-    // Add Log Out button handling (frontend-only, safe to inline here)
     document.addEventListener('DOMContentLoaded', function () {
       var logoutBtn = document.getElementById('logoutBtn');
       var userEmailDiv = document.getElementById('userEmail');
       var googleSignInBtn = document.getElementById('googleSignInBtn');
       var adminPanel = document.getElementById('adminPanel');
-      // Observe Firebase auth state to show/hide logout
       firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
           logoutBtn.style.display = '';
@@ -91,13 +90,10 @@
       });
       logoutBtn.onclick = function () {
         firebase.auth().signOut().then(function () {
-          // Hide admin panel, hide logout, reset email
           adminPanel.style.display = 'none';
           logoutBtn.style.display = 'none';
           userEmailDiv.textContent = '';
           googleSignInBtn.style.display = '';
-          // Optionally refresh page
-          // window.location.reload();
         });
       };
     });
