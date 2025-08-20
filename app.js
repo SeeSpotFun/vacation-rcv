@@ -1,4 +1,4 @@
-// app.js v0.100 Modern UI - Family Vacation Voting App (Firebase 10.5 compat)
+// app.js v0.021 Modern UI - Family Vacation Voting App (Firebase 10.5 compat)
 
 const firebaseConfig = {
   apiKey: "AIzaSyApFSFEI4NaFHM1DDQhq6SDjGjNaNFcKmo",
@@ -72,7 +72,7 @@ function setupVotingInterface() {
 function createModernRankingList(options) {
   appState.ranking = options.map(option => option.id);
   const rankingList = document.getElementById('rankingList');
-  rankingList.className = 'modern-ranking-list'; // Ensure modern style
+  rankingList.className = 'modern-ranking-list';
   rankingList.innerHTML = options.map((option, index) =>
     `<li draggable="true" data-id="${option.id}" class="modern-ranking-item">
       <span class="modern-drag-handle" title="Drag to reorder">&#9776;</span>
@@ -142,7 +142,7 @@ function resetBallot() {
 
 window.addEventListener('DOMContentLoaded', () => {
   const tag = document.getElementById("jsVersionTag");
-  if (tag) tag.textContent = "JS v0.100 Modern";
+  if (tag) tag.textContent = "JS v0.021 Modern";
   showSection('registration');
   loadOptions();
 
