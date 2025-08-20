@@ -51,4 +51,23 @@
       <section class="results-section">
         <h3>📊 Voting Results & Stats</h3>
         <div id="resultsTabs"></div>
-        <div id="resultsContent"></
+        <div id="resultsContent"></div>
+      </section>
+    </div>
+  </div>
+  <dialog id="editOptionDialog">
+    <form id="editOptionForm" method="dialog">
+      <h3>Edit Vacation Option</h3>
+      <input id="editOptionName" placeholder="Option name" style="margin-bottom:7px; width:18em;" required /><br>
+      <textarea id="editOptionDesc" placeholder="Description" style="margin-bottom:10px;width:22em;min-height:60px;"></textarea><br>
+      <button id="saveOptionEditBtn" class="btn--primary" type="submit">Save</button>
+      <button type="button" onclick="closeEditOptionDialog()">Cancel</button>
+    </form>
+  </dialog>
+  <!-- Firebase 10.5 compat for admin (matches public/index.html) -->
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
+  <script src="admin.js?v=0.100"></script>
+</body>
+</html>
