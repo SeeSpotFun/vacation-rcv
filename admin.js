@@ -1,6 +1,5 @@
-// admin.js v0.100 SECURE - Vacation Ballot Admin (Firebase 10.5 compat)
+// admin.js v0.101 SECURE - Vacation Ballot Admin (Firebase 10.5 compat, no appState bug)
 
-// --- Firebase Config ---
 const firebaseConfig = {
   apiKey: "AIzaSyApFSFEI4NaFHM1DDQhq6SDjGjNaNFcKmo",
   authDomain: "vacation-rcv.firebaseapp.com",
@@ -54,7 +53,6 @@ googleSignInBtn.onclick = function () {
   auth.signInWithPopup(provider).catch(err => alert("Sign-in failed: " + err.message));
 };
 
-// Escape/encode helpers
 function escapeHtml(text) {
   if (!text) return '';
   return text.replace(/&/g, "&amp;")
@@ -93,7 +91,6 @@ function fetchOptions() {
   });
 }
 
-// Bind edit/delete for options
 function bindOptionEditDelete() {
   document.querySelectorAll('.editOptionBtn').forEach(btn => {
     btn.onclick = function () {
@@ -201,29 +198,36 @@ function fetchJourneys() {
   });
 }
 
-// --- View Results (Simple Table for now) ---
+// --- View Results (Simple Table for now, no appState) ---
 function fetchResults() {
-  // Display a summary of rankings
-  db.collection("votes").get().then(snap => {
-    let tally = {};
-    snap.forEach(doc => {
-      const data = doc.data();
-      (data.ranking || []).forEach((id, idx) => {
-        if (!tally[id]) tally[id] = {count: 0, ranks: []};
-        tally[id].count += (appState.options && appState.options.find(o => o.id === id)) ? 1 : 0;
-        tally[id].ranks.push(idx + 1);
-      });
+  // Option names for reference
+  db.collection("options").get().then(optsSnap => {
+    const optionNameById = {};
+    optsSnap.forEach(doc => {
+      const d = doc.data();
+      optionNameById[doc.id] = d.name || doc.id;
     });
-    let html = `<table><thead><tr><th>Option ID</th><th># Ballots Ranked</th><th>All Ranks</th></tr></thead><tbody>`;
-    for (const id in tally) {
-      html += `<tr>
-        <td>${escapeHtml(id)}</td>
-        <td>${tally[id].count}</td>
-        <td>${tally[id].ranks.join(', ')}</td>
-      </tr>`;
-    }
-    html += `</tbody></table>`;
-    document.getElementById('resultsContent').innerHTML = html;
+    db.collection("votes").get().then(snap => {
+      let tally = {};
+      snap.forEach(doc => {
+        const data = doc.data();
+        (data.ranking || []).forEach((id, idx) => {
+          if (!tally[id]) tally[id] = { count: 0, ranks: [] };
+          tally[id].count++;
+          tally[id].ranks.push(idx + 1);
+        });
+      });
+      let html = `<table><thead><tr><th>Option</th><th># Ballots Ranked</th><th>All Ranks</th></tr></thead><tbody>`;
+      for (const id in tally) {
+        html += `<tr>
+          <td>${escapeHtml(optionNameById[id] || id)}</td>
+          <td>${tally[id].count}</td>
+          <td>${tally[id].ranks.join(', ')}</td>
+        </tr>`;
+      }
+      html += `</tbody></table>`;
+      document.getElementById('resultsContent').innerHTML = html;
+    });
   });
 }
 
