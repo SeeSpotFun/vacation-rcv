@@ -11,13 +11,19 @@
     .admin-header { display: flex; align-items: center; justify-content: space-between;}
     .results-section { margin-top: 2em; background: #121d24; padding: 1.25em; border-radius: 8px;}
     .expanded-journey { background: #172330; padding: 0.5em 1em; margin-bottom:1em; border-radius:6px;}
+    .header-actions { display: flex; align-items: center; gap: 14px;}
+    #logoutBtn { background: var(--color-error); color: #fff; padding: 6px 16px; border-radius:7px; border:none; cursor:pointer;}
+    #logoutBtn:hover { background: #c13232; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="admin-header">
       <h2>Admin Panel</h2>
-      <span id="jsVersionTag" style="font-size:0.95em;color:#ccc;">v0.3-SECURE</span>
+      <div class="header-actions">
+        <span id="jsVersionTag" style="font-size:0.95em;color:#ccc;">v0.3-SECURE</span>
+        <button id="logoutBtn" style="display:none;">Log Out</button>
+      </div>
     </div>
     <div id="authSection">
       <button id="googleSignInBtn" class="btn--primary" style="margin-bottom:18px;">Sign in with Google</button>
@@ -64,10 +70,37 @@
       <button type="button" onclick="closeEditOptionDialog()">Cancel</button>
     </form>
   </dialog>
-  <!-- Firebase 10.5 compat for admin (matches public/index.html) -->
   <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore-compat.js"></script>
   <script src="admin.js?v=0.100"></script>
+  <script>
+    // Add Log Out button handling (frontend-only, safe to inline here)
+    document.addEventListener('DOMContentLoaded', function () {
+      var logoutBtn = document.getElementById('logoutBtn');
+      var userEmailDiv = document.getElementById('userEmail');
+      var googleSignInBtn = document.getElementById('googleSignInBtn');
+      var adminPanel = document.getElementById('adminPanel');
+      // Observe Firebase auth state to show/hide logout
+      firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+          logoutBtn.style.display = '';
+        } else {
+          logoutBtn.style.display = 'none';
+        }
+      });
+      logoutBtn.onclick = function () {
+        firebase.auth().signOut().then(function () {
+          // Hide admin panel, hide logout, reset email
+          adminPanel.style.display = 'none';
+          logoutBtn.style.display = 'none';
+          userEmailDiv.textContent = '';
+          googleSignInBtn.style.display = '';
+          // Optionally refresh page
+          // window.location.reload();
+        });
+      };
+    });
+  </script>
 </body>
 </html>
